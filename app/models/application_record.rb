@@ -25,5 +25,24 @@ class ApplicationRecord < ActiveRecord::Base
 
         return response_data
     end
+
+    # Checker if json is parsable
+    def valid_json?(json)
+        response_data = { status: false, result: {}, error: "" }
+
+        begin
+            parsed_json = JSON.parse(json)
+
+            if parsed_json
+                response_data[:status] = true
+                response_data[:result] = parsed_json
+            end
+
+        rescue JSON::ParserError
+            response_data[:error] = "Json not parsable"
+        end
+
+        return response_data
+    end
   end
 end
