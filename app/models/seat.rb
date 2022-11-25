@@ -58,26 +58,25 @@ class Seat < ApplicationRecord
         raise validate_seat_array[:error] if validate_seat_array[:error].present?
 
         # Then create the seats the input is valid
+
         seat_array[:result].each_with_index do |seat_settings, index|
           temporary_seat = []
-          rows      = seat_settings.first
-          columns   = seat_settings.last
-          row_array = []
+          rows      = (0..seat_settings.first).to_a
+          columns   = (0..seat_settings.last).to_a
 
           # Create rows and columns
-          until columns === 0 do
-            until rows === 0 do
-              row_array << 0
-              rows -= 1
-            end
-
-            temporary_seat << row_array
-            columns -= 1
+          columns.each do
+            row_array = []
+              rows.each do
+                row_array << 0
+              end
+              temporary_seat << row_array
           end
 
           # put the temporary seat in the seats variable
           create_seat_parameters[:airplane_seats] << temporary_seat
         end
+
 
         # There are possible 3 scenarios in filling up the seats depending on the number of group of seats
         # 1 - there is only 1 group of seats
