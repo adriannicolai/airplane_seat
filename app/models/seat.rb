@@ -139,6 +139,11 @@ class Seat < ApplicationRecord
             break if passenger_count === seat_number
         end
 
+        # Guard clause if the passenger count is already reached
+        if passenger_count === seat_number
+          return response_data.merge!({ status: true, result: {airplane_seats: airplane_seats} })
+        end
+
         fill_window_seats_parameters = {
           passenger_count: passenger_count,
           airplane_seats: airplane_seats,
@@ -224,7 +229,6 @@ class Seat < ApplicationRecord
             break if passenger_count === seat_number
         end
 
-        p airplane_seats
       rescue Exception => ex
         response_data.merge!({ error: ex.message })
       end
