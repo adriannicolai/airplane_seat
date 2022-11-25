@@ -46,9 +46,10 @@ class Seat < ApplicationRecord
         raise "The passenger count is required" unless passenger_count.present?
         raise "The passenger count should be an integer" if (passenger_count =~ /^\d+$/) === nil
         raise "The passenger count should be greater than 0" unless passenger_count.to_i > 0
+        passenger_count = passenger_count.to_i
 
         # Check if user added is a valid json string
-        raise "The seat array is required" unless seat_array.present?
+        raise "The seat array is required" unless params[:seat_array].present?
         seat_array = valid_json?(params[:seat_array]) # valid_json? is found in application_record.rb
         raise seat_array[:error] unless seat_array[:status]
 
@@ -103,11 +104,29 @@ class Seat < ApplicationRecord
       begin
         airplane_seats_row_count = @airplane_seats.length
         largest_column_height    = get_largest_column_in_airplane_seat()
-        largest_row_height       = get_largest_row_in_airplane_seat()
-        curent_row               = 0
         current_column           = 0
+        rows_array               = (0..get_largest_row_in_airplane_seat()).to_a
 
-        until current_column === largest_column_height
+        while current_column < largest_column_height
+          # Iterate each row and fill the seats
+          rows_array.each do |airplane_row|
+            if @airplane_seats[current_column][airplane_row].present?
+              # for the first row only  fill up the last element of the array
+              # for the last row only fill up the first element of the array
+              # for the middle rows fill up the first and last elements of the array
+              p current_column
+              # if current_column === 0
+              #   @airplane_seats[current_column][airplane_row][airplane_row] = @seat_number
+              # elsif current_column === largest_column_height -1
+              #   @airplane_seats[current_column][airplane_row][airplane_row] = @seat_number
+              # else
+              #   p "middle column"
+              # end
+
+              #   @seat_number += 1
+              #   break if passenger_count === @seat_number
+            end
+          end
 
           current_column += 1
         end
