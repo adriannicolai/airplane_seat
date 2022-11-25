@@ -105,7 +105,6 @@ class Seat < ApplicationRecord
         # Destructure create_seat_parameters
         seat_number, passenger_count, airplane_seats = create_seat_parameters.values_at(:seat_number, :passenger_count, :airplane_seats)
 
-
         airplane_seats_row_count = airplane_seats.length
         largest_column_height    = (0..get_largest_column_in_airplane_seat(airplane_seats) - 1).to_a
         current_column           = 0
@@ -115,12 +114,26 @@ class Seat < ApplicationRecord
         largest_column_height.each do |column_height|
           airplane_seats.each_with_index do |airplane_seat, index|
             if airplane_seat[column_height]
-              p airplane_seat[column_height]
+              # Fill up the left most part of seats
+              if index === 0
+                airplane_seat[column_height][-1] = seat_number
+                seat_number += 1
+              # Fill up the right part of seats
+              elsif index === rows_array.last
+                airplane_seat[column_height][0] = seat_number
+                seat_number += 1
+              # Fill up the middle seats if there are more than 3 seats in a column
+              else
+                airplane_seat[column_height][0] = seat_number
+                seat_number += 1
+                airplane_seat[column_height][-1] = seat_number
+                seat_number += 1
+              end
             end
           end
         end
 
-
+        p airplane_seats
       rescue Exception => ex
         response_data.merge!({ error: ex.message })
       end
