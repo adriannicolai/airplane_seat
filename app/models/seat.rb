@@ -180,11 +180,19 @@ class Seat < ApplicationRecord
                 airplane_seat[column_height][-1] = seat_number
                 seat_number += 1
               end
+
+                break if passenger_count === seat_number
             end
           end
 
             break if passenger_count === seat_number
         end
+
+        # Guard clause if the passenger count is already reached
+        if passenger_count === seat_number
+          return response_data.merge!({ status: true, result: {airplane_seats: airplane_seats} })
+        end
+
 
         fill_middle_seats_parameters = {
           passenger_count: passenger_count,
@@ -215,18 +223,25 @@ class Seat < ApplicationRecord
               # Fill up the middle seats only if there are more than 3 seats for the middle seat to
               if airplane_seat[column_height].length >= 3
 
-                airplane_seat[column_height].each do |airplane_seat_to_update|
+                airplane_seat[column_height].each_with_index do |airplane_seat_to_update, index|
                   if airplane_seat_to_update === 0
-                    airplane_seat_to_update = seat_number
+                    airplane_seat[column_height][index] = seat_number
                     seat_number += 1
                   end
-                end
 
+                  break if passenger_count === seat_number
+                end
               end
             end
           end
 
-            break if passenger_count === seat_number
+          break if passenger_count === seat_number
+        end
+
+        # Guard clause if the passenger count is already reached or has a remainder in the passenger count
+        if passenger_count >= seat_number
+          unboarded_passengers = passenger_count - seat_number
+          return response_data.merge!({ status: true, result: {airplane_seats: airplane_seats, unboarded_passengers: unboarded_passengers }})
         end
 
       rescue Exception => ex
