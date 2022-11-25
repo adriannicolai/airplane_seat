@@ -39,8 +39,17 @@ class Seat < ApplicationRecord
       response_data = { status: false, result: {}, error: "" }
 
       begin
-        # Check if user added is json parsable
-        seat_array = valid_json?(params["seat_array"])
+        # destructure the params to get the seat array
+        passenger_count,  = params.values_at(:passenger_count)
+
+        # Check if the passenger count is valid
+        raise "The passenger count is required" unless passenger_count.present?
+        raise "The passenger count should be an integer" if (passenger_count =~ /^\d+$/) === nil
+        raise "The passenger count should be greater than 0" unless passenger_count.to_i > 0
+
+        # Check if user added is a valid json string
+        raise "The seat array is required" unless seat_array.present?
+        seat_array = valid_json?(params[:seat_array]) # valid_json? is found in application_record.rb
         raise seat_array[:error] unless seat_array[:status]
 
         # Validate the seat array if it is on the correct format (multi dimensional array with 2 values)
@@ -80,7 +89,7 @@ class Seat < ApplicationRecord
         when 2
           # Code when 2 group of seats
         else
-          fill_aisle_seats_scenario_3(response_data)
+          fill_aisle_seats_scenario_3(response_data, passenger_count)
         end
 
       rescue Exception => ex
@@ -90,11 +99,18 @@ class Seat < ApplicationRecord
       response_data
     end
 
-    def fill_aisle_seats_scenario_3(response_data)
+    def fill_aisle_seats_scenario_3(response_data, passenger_count)
       begin
         airplane_seats_row_count = @airplane_seats.length
         largest_column_height    = get_largest_column_in_airplane_seat()
         largest_row_height       = get_largest_row_in_airplane_seat()
+        curent_row               = 0
+        current_column           = 0
+
+        until current_column === largest_column_height
+
+          current_column += 1
+        end
 
       rescue Exception => ex
         response_data.merge!({ error: ex.message })
