@@ -66,9 +66,11 @@ class Seat < ApplicationRecord
           # Create rows and columns
           columns.each do
             row_array = []
+
               rows.each do
                 row_array << 0
               end
+
               temporary_seat << row_array
           end
 
