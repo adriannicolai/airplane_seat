@@ -103,25 +103,25 @@ class Seat < ApplicationRecord
       begin
         # Destructure fill_aisle_seat_parameters
         seat_number, passenger_count, airplane_seats = fill_aisle_seat_parameters.values_at(:seat_number, :passenger_count, :airplane_seats)
-        passenger_count = passenger_count.to_i
+        passenger_count = (passenger_count.to_i + 1)
 
         largest_column_height    = (0..get_largest_column_in_airplane_seat(airplane_seats) - 1).to_a
         rows_array               = (0..get_largest_row_in_airplane_seat(airplane_seats) - 1).to_a
 
-        # TODO: For refactor
+        # TODO: For refactor - repeated function
         # iterate the array to cover each seats vertically
         largest_column_height.each do |column_height|
           airplane_seats.each_with_index do |airplane_seat, index|
             if airplane_seat[column_height]
-              # Fill up the left most part of seats
+              # Fill up the right most part of seats
               if index === 0
                 airplane_seat[column_height][-1] = seat_number
                 seat_number += 1
-              # Fill up the right part of seats
+              # Fill up the left most part of seats
               elsif index === rows_array.last
                 airplane_seat[column_height][0] = seat_number
                 seat_number += 1
-              # Fill up the middle seats if there are more than 3 seats in a column
+              # Fill up the first and last seats if there are more than 3 seats in a column
               else
                 airplane_seat[column_height][0] = seat_number
                 seat_number += 1
@@ -162,7 +162,7 @@ class Seat < ApplicationRecord
         # Destructure the fill_window_seats_parameters
         passenger_count, airplane_seats, seat_number, rows_array, largest_column_height = fill_window_seats_parameters.values_at(:passenger_count, :airplane_seats, :seat_number, :rows_array, :largest_column_height)
 
-        # TODO: For refactor
+        # TODO: For refactor - repeated function
         largest_column_height.each do |column_height|
           airplane_seats.each_with_index do |airplane_seat, index|
             if airplane_seat[column_height]
@@ -181,7 +181,15 @@ class Seat < ApplicationRecord
             break if passenger_count === seat_number
         end
 
+        fill_middle_seats_parameters = {
+          passenger_count: passenger_count,
+          airplane_seats: airplane_seats,
+          seat_number: seat_number,
+          rows_array: rows_array,
+          largest_column_height: largest_column_height
+        }
 
+        fill_middle_seats_scenario_3(response_data, fill_middle_seats_parameters)
       rescue Exception => ex
         response_data.merge!({ error: ex.message })
       end
@@ -189,7 +197,42 @@ class Seat < ApplicationRecord
       response_data
     end
 
+    # DOCU: Fill the middle seats
+    def fill_middle_seats_scenario_3(response_data, fill_middle_seats_parameters)
+      begin
+        # Destructure the fill_window_seats_parameters
+        passenger_count, airplane_seats, seat_number, rows_array, largest_column_height = fill_middle_seats_parameters.values_at(:passenger_count, :airplane_seats, :seat_number, :rows_array, :largest_column_height)
 
+        # TODO: For refactor - repeated function
+        largest_column_height.each do |column_height|
+          airplane_seats.each_with_index do |airplane_seat, index|
+            if airplane_seat[column_height]
+              # Fill up the middle seats only if there are more than 3 seats for the middle seat to
+              if airplane_seat[column_height].length >= 3
+
+                airplane_seat[column_height].each do |airplane_seat_to_update|
+                  if airplane_seat_to_update === 0
+                    airplane_seat_to_update = seat_number
+                    seat_number += 1
+                  end
+                end
+
+              end
+            end
+          end
+
+            break if passenger_count === seat_number
+        end
+
+        p airplane_seats
+      rescue Exception => ex
+        response_data.merge!({ error: ex.message })
+      end
+
+      response_data
+    end
+
+    # TODO: Move to helper. put here for easier code review
     # DOCU: Get the largest_column in the airplane seat - horizontal - width
     def get_largest_column_in_airplane_seat(airplane_seats)
       largest_column = 0
@@ -201,6 +244,7 @@ class Seat < ApplicationRecord
       largest_column
     end
 
+    # TODO: Move to helper. put here for easier code review
     # DOCU: Get the largest row in the airplane seat - vertical - height
     def get_largest_row_in_airplane_seat(airplane_seats)
       largest_row = 0
