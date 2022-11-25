@@ -93,33 +93,36 @@ class Seat < ApplicationRecord
     def fill_aisle_seats_scenario_3(response_data)
       begin
         airplane_seats_row_count = @airplane_seats.length
-        current_column_height    = 0
-        p @airplane_seats
-        @airplane_seats.each_with_index do |airplane_seat_group, airplane_seats_index|
-          # Checker for the height of array/seat
-          p  "================"
-          p  "================"
-          p airplane_seat_group
-          p "================"
-          p "================"
-            # if airplane_seat_group.length >= current_column_height
-            #   if airplane_seats_index === 0
-
-            #   elsif airplane_seats_index === airplane_seats_row_count
-
-            #   else
-
-            #   end
-            # end
-
-          current_column_height = index
-        end
+        largest_column_height    = get_largest_column_in_airplane_seat()
+        largest_row_height       = get_largest_row_in_airplane_seat()
 
       rescue Exception => ex
         response_data.merge!({ error: ex.message })
       end
 
       response_data
+    end
+
+    # DOCU: Get the largest_column in the airplane seat - horizontal - width
+    def get_largest_column_in_airplane_seat()
+      largest_column = 0
+
+      @airplane_seats.each do |airplane_seat_group|
+        largest_column = airplane_seat_group.length if airplane_seat_group.length > largest_column
+      end
+
+      largest_column
+    end
+
+    # DOCU: Get the largest row in the airplane seat - vertical - height
+    def get_largest_row_in_airplane_seat()
+      largest_row = 0
+
+      @airplane_seats.each do |airplane_seat_group|
+        largest_row = airplane_seat_group.first.length if airplane_seat_group.first.length > largest_row
+      end
+
+      largest_row
     end
   end
 end
