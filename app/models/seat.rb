@@ -105,32 +105,22 @@ class Seat < ApplicationRecord
         # Destructure create_seat_parameters
         seat_number, passenger_count, airplane_seats = create_seat_parameters.values_at(:seat_number, :passenger_count, :airplane_seats)
 
+
         airplane_seats_row_count = airplane_seats.length
         largest_column_height    = (0..get_largest_column_in_airplane_seat(airplane_seats) - 1).to_a
         current_column           = 0
         rows_array               = (0..get_largest_row_in_airplane_seat(airplane_seats) - 1).to_a
 
         # iterate the array to cover each seats vertically
-        largest_column_height.each do
-          rows_array.each do |airplane_row|
-            largest_column_height.each do |current_column|
-              if airplane_seats[current_column][airplane_row].present?
-                if current_column === 0 && airplane_seats[current_column][airplane_row][-1] === 0
-                  p "current_column #{current_column}"
-                  p "seat_number #{seat_number}"
-                  airplane_seats[current_column][airplane_row][-1] = seat_number
-
-                  seat_number += 1
-                elsif current_column === largest_column_height.last && airplane_seats[current_column][airplane_row][0] === 0
-                  airplane_seats[current_column][airplane_row][0] = seat_number
-                  seat_number += 1
-                end
-              end
+        largest_column_height.each do |column_height|
+          airplane_seats.each_with_index do |airplane_seat, index|
+            if airplane_seat[column_height]
+              p airplane_seat[column_height]
             end
           end
         end
 
-        p airplane_seats
+
       rescue Exception => ex
         response_data.merge!({ error: ex.message })
       end
