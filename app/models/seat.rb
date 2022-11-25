@@ -1,16 +1,17 @@
 class Seat < ApplicationRecord
   self.abstract_class = true
-  @seat = []
+  @airplane_seats = []
+  @seat_number = 1
 
   class << self
-    # DOCU: Valnm  idate if the seat is a two-dimensional array
+    # DOCU: Validate if the seat is a two-dimensional array
     def validate_seat_array(seat_array)
       response_data = { status: false, result: {}, error: "" }
 
       begin
         # Check if the seat_array is an array first
         raise "Seat array must be an array" unless seat_array.is_a?(Array)
-        raise "Seat must have at least 1 array" unless seat_array.size >= 1
+        raise "Seat must have at least 1 array" unless seat_array.length >= 1
 
         accepted_numbers = (1..9).to_a
 
@@ -19,7 +20,7 @@ class Seat < ApplicationRecord
         # Check if the content of the arrays are both 1-9
         seat_array.each do |seats|
           raise "Seat must be a multidimensional array" unless seats.is_a?(Array)
-          raise "Seats must contain only 2 values" unless seats.size === 2
+          raise "Seats must contain only 2 values" unless seats.length === 2
           raise "rows (the first numbers) must only contain numbers 1 to 9" unless accepted_numbers.include?(seats.first)
           raise "columns (the second numbers) must only contain numbers 1 to 9" unless accepted_numbers.include?(seats.last)
         end
@@ -30,7 +31,7 @@ class Seat < ApplicationRecord
         response_data.merge!({ error: ex.message })
       end
 
-      return response_data
+      response_data
     end
 
     # DOCU: create a new seat, this will create the template for the seat
@@ -65,15 +66,60 @@ class Seat < ApplicationRecord
           end
 
           # put the temporary seat in the seats variable
-          @seat << temporary_seat
+          @airplane_seats << temporary_seat
         end
 
-        @seat
+        # There are possible 3 scenarios in filling up the seats depending on the number of group of seats
+        # 1 - there is only 1 group of seats
+        # 2 - there are 2 group of seats
+        # 3 - there are 3 or more group of seats
+        # TODO: Will refactor this later when I have time
+        case seat_array[:result].length
+        when 1
+          # code when 1 group of seats
+        when 2
+          # Code when 2 group of seats
+        else
+          fill_aisle_seats_scenario_3(response_data)
+        end
+
       rescue Exception => ex
         response_data.merge!({ error: ex.message })
       end
 
-      return response_data
+      response_data
+    end
+
+    def fill_aisle_seats_scenario_3(response_data)
+      begin
+        airplane_seats_row_count = @airplane_seats.length
+        current_column_height    = 0
+        p @airplane_seats
+        @airplane_seats.each_with_index do |airplane_seat_group, airplane_seats_index|
+          # Checker for the height of array/seat
+          p  "================"
+          p  "================"
+          p airplane_seat_group
+          p "================"
+          p "================"
+            # if airplane_seat_group.length >= current_column_height
+            #   if airplane_seats_index === 0
+
+            #   elsif airplane_seats_index === airplane_seats_row_count
+
+            #   else
+
+            #   end
+            # end
+
+          current_column_height = index
+        end
+
+      rescue Exception => ex
+        response_data.merge!({ error: ex.message })
+      end
+
+      response_data
     end
   end
 end

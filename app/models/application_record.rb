@@ -23,7 +23,7 @@ class ApplicationRecord < ActiveRecord::Base
             response_data[:error] = ex.message
         end
 
-        return response_data
+        response_data
     end
 
     # Checker if json is parsable
@@ -42,7 +42,7 @@ class ApplicationRecord < ActiveRecord::Base
             response_data[:error] = "Json not parsable"
         end
 
-        return response_data
+        response_data
     end
   end
 end
